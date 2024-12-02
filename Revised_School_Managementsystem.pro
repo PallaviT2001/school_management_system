@@ -4,6 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        admin.c \
         faculty.c \
         fees.c \
         fileoperation.c \
@@ -13,6 +14,7 @@ SOURCES += \
         student.c
 
 HEADERS += \
+    admin.h \
     faculty.h \
     fees.h \
     fileoperation.h \

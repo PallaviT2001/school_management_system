@@ -3,13 +3,14 @@
 
 struct Student {
     int id;
-    const char *name[20];
+    char name[50];
     int age;
+    char contactNumber[15];
 };
 
-void insertStudent(int id, const char *name, int age);
-void deleteStudent();
-void updateStudent();
+void insertStudent(int id, const char *name, int age, const char *contactNumber);
+void deleteStudent(int id);
+void updateStudent(int id);
 void displayStudentDetails();
 void sortStudentsByID();
 void sortStudentsByName();

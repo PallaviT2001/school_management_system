@@ -20,4 +20,3 @@ extern struct Faculty *faculties;
 extern int facultyCount;
 
 #endif
-

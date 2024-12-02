@@ -4,17 +4,20 @@
 #include "student.h"
 
 struct Student *students = NULL;
-int studentCount=0;
+int studentCount = 0;
 
-void insertStudent(int id, const char *name, int age) {
+void insertStudent(int id, const char *name, int age, const char *contactNumber) {
     students = realloc(students, (studentCount + 1) * sizeof(struct Student));
     if (!students) {
         printf("Memory allocation failed!\n");
         exit(EXIT_FAILURE);
     }
     students[studentCount].id = id;
-    strcpy(students[studentCount].name, name);
+    strncpy(students[studentCount].name, name, sizeof(students[studentCount].name) - 1);
+    students[studentCount].name[sizeof(students[studentCount].name) - 1] = '\0';
     students[studentCount].age = age;
+    strncpy(students[studentCount].contactNumber, contactNumber, sizeof(students[studentCount].contactNumber) - 1);
+    students[studentCount].contactNumber[sizeof(students[studentCount].contactNumber) - 1] = '\0';
     studentCount++;
     printf("Student added successfully!\n");
 }
@@ -27,7 +30,7 @@ void deleteStudent(int id) {
             }
             studentCount--;
             students = realloc(students, studentCount * sizeof(struct Student));
-            printf("Student Transfer certificate also issued and Student deleted successfully!\n");
+            printf("Student deleted successfully!\n");
             return;
         }
     }
@@ -41,24 +44,31 @@ void updateStudent(int id) {
             scanf(" %[^\n]", students[i].name);
             printf("Enter new age: ");
             scanf("%d", &students[i].age);
+            printf("Enter new contact number: ");
+            scanf(" %[^\n]", students[i].contactNumber);
             printf("Student updated successfully!\n");
             return;
         }
     }
-    printf("Student not found!\n");
+    printf("Student with ID %d not found!\n", id);
 }
 
 void displayStudentDetails() {
     if (studentCount == 0) {
         printf("No students found!\n");
-        return;
+        return ;
     }
-
-    printf("\nStudent Details:\n");
-    for (int i = 0; i < studentCount; i++) {
-        printf("ID: %d, Name: %s, Age: %d\n", students[i].id, students[i].name, students[i].age);
+    else
+    {
+        printf("------Student Details:------\n");
+        for (int i = 0; i < studentCount; i++) {
+            printf("ID: %d, Name: %s, Age: %d, Contact Number: %s\n",
+                   students[i].id, students[i].name, students[i].age, students[i].contactNumber);
+        }
+        return ;
     }
 }
+
 void sortStudentsByID() {
     for (int i = 0; i < studentCount - 1; i++) {
         for (int j = i + 1; j < studentCount; j++) {
@@ -86,7 +96,3 @@ void sortStudentsByName() {
     printf("Students sorted by Name.\n");
     displayStudentDetails();
 }
-
-
-
-

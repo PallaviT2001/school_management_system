@@ -8,150 +8,162 @@
 #include "section.h"
 
 void saveStudentsToFile(const char *filename) {
-    FILE *file = fopen(filename, "wb");
+    FILE *file = fopen(filename, "w");
     if (file == NULL) {
-        printf("Error opening file for saving!\n");
+        perror("Error opening file for saving!\n");
         return;
     }
-    fwrite(&studentCount, sizeof(int), 1, file);
-
-    if (studentCount > 0) {
-        fwrite(students, sizeof(struct Student), studentCount, file);
+    fprintf(file, "%d\n", studentCount);
+    for (int i = 0; i < studentCount; i++) {
+        fprintf(file, "%d %s %d %s\n", students[i].id, students[i].name, students[i].age,students[i].contactNumber);
     }
-
     fclose(file);
+    printf("Student data saved successfully to %s.\n", filename);
 }
 
 void loadStudentsFromFile(const char *filename) {
-    FILE *file = fopen(filename, "rb");
+    FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        printf("No existing data file found. Starting fresh.\n");
+        perror("No existing data file found. Starting fresh.\n");
         return;
     }
 
-    fread(&studentCount, sizeof(int), 1, file);
-
+    fscanf(file, "%d", &studentCount);
     if (studentCount > 0) {
         students = malloc(studentCount * sizeof(struct Student));
         if (students == NULL) {
-            printf("Memory allocation failed while loading data!\n");
+            perror("Memory allocation failed while loading data!\n");
             fclose(file);
             exit(1);
         }
-        fread(students, sizeof(struct Student), studentCount, file);
+        for (int i = 0; i < studentCount; i++) {
+            fscanf(file, "%d %s %d %s", &students[i].id, students[i].name, &students[i].age,students[i].contactNumber);
+        }
     }
 
     fclose(file);
     printf("Student data loaded successfully from file.\n");
 }
 
-
 void saveFacultyData(const char *filename) {
-    FILE *file = fopen(filename, "wb");
+    FILE *file = fopen(filename, "w");
     if (file == NULL) {
-        printf("Unable to open file for saving data.\n");
+        perror("Unable to open file for saving data.\n");
         return;
     }
 
-    fwrite(&facultyCount, sizeof(int), 1, file);
-    fwrite(faculties, sizeof(struct Faculty), facultyCount, file);
-
+    fprintf(file, "%d\n", facultyCount);
+    for (int i = 0; i < facultyCount; i++) {
+        fprintf(file, "%d %s %s %d %s\n", faculties[i].id, faculties[i].name, faculties[i].department,
+                faculties[i].age, faculties[i].qualification);
+    }
     fclose(file);
-    printf("Faculty data saved successfully!\n");
+    printf("Faculty data saved successfully to %s.\n", filename);
 }
 
 void loadFacultyData(const char *filename) {
-    FILE *file = fopen(filename, "rb");
+    FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        printf("Unable to open file for loading data.\n");
+        perror("Unable to open file for loading data.\n");
         return;
     }
 
-    fread(&facultyCount, sizeof(int), 1, file);
+    fscanf(file, "%d", &facultyCount);
     faculties = realloc(faculties, facultyCount * sizeof(struct Faculty));
-
-    fread(faculties, sizeof(struct Faculty), facultyCount, file);
+    for (int i = 0; i < facultyCount; i++) {
+        fscanf(file, "%d %s %s %d %s", &faculties[i].id, faculties[i].name, faculties[i].department,
+               &faculties[i].age, faculties[i].qualification);
+    }
 
     fclose(file);
-    printf("Faculty data loaded successfully!\n");
+    printf("Faculty data loaded successfully from %s.\n", filename);
 }
 
-
 void saveFeesToFile(const char *filename) {
-    FILE *file = fopen(filename, "wb");
+    FILE *file = fopen(filename, "w");
     if (file == NULL) {
-        printf("Error opening file for writing!\n");
+        perror("Error opening file for writing!\n");
         return;
     }
-    fwrite(&feesCount, sizeof(int), 1, file);
+    fprintf(file, "%d\n", feesCount);
     for (int i = 0; i < feesCount; i++) {
-        fwrite(&feesRecords[i].receipt_number, sizeof(int), 1, file);
-        fwrite(&feesRecords[i].paid_amount, sizeof(float), 1, file);
-        fwrite(feesRecords[i].studentDetails, sizeof(struct Student), 1, file);
+        fprintf(file, "%d %f %d %s\n", feesRecords[i].receipt_number, feesRecords[i].paid_amount,
+                feesRecords[i].studentDetails->id, feesRecords[i].studentDetails->name);
     }
     fclose(file);
     printf("Fees records saved successfully to %s.\n", filename);
 }
+
 void loadFeesFromFile(const char *filename) {
-    FILE *file = fopen(filename, "rb");
+    FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        printf("Error opening file for reading!\n");
+        perror("Error opening file for reading!\n");
         return;
     }
-    fread(&feesCount, sizeof(int), 1, file);
+    fscanf(file, "%d", &feesCount);
     feesRecords = realloc(feesRecords, feesCount * sizeof(struct Fees));
-    if (feesRecords == NULL) {
-        printf("Memory allocation failed!\n");
-        fclose(file);
-        return;
-    }
     for (int i = 0; i < feesCount; i++) {
-        fread(&feesRecords[i].receipt_number, sizeof(int), 1, file);
-        fread(&feesRecords[i].paid_amount, sizeof(float), 1, file);
         feesRecords[i].studentDetails = malloc(sizeof(struct Student));
-        fread(feesRecords[i].studentDetails, sizeof(struct Student), 1, file);
+        if (feesRecords[i].studentDetails == NULL) {
+            perror("Memory allocation failed for studentDetails in feesRecords!");
+            fclose(file);
+            exit(1);
+        }
+        fscanf(file, "%d %f %d %s", &feesRecords[i].receipt_number,
+               &feesRecords[i].paid_amount,
+               &feesRecords[i].studentDetails->id,
+               feesRecords[i].studentDetails->name);
+
     }
     fclose(file);
     printf("Fees records loaded successfully from %s.\n", filename);
 }
 
 void saveSectionsToFile(const char *filename) {
-    FILE *file = fopen(filename, "wb");
+    FILE *file = fopen(filename, "w");
     if (file == NULL) {
-        printf("Error opening file for writing!\n");
+        perror("Error opening file for writing!\n");
         return;
     }
-    fwrite(&sectionCount, sizeof(int), 1, file);
+    fprintf(file, "%d\n", sectionCount);
     for (int i = 0; i < sectionCount; i++) {
-        fwrite(&sections[i].section_id, sizeof(int), 1, file);
-        fwrite(sections[i].section_name, sizeof(char), 50, file);
-        fwrite(sections[i].studentDetails, sizeof(struct Student), 1, file);
+        fprintf(file, "%d %s %d %s\n", sections[i].section_id, sections[i].section_name,
+                sections[i].studentDetails->id, sections[i].studentDetails->name);
     }
     fclose(file);
     printf("Sections saved successfully to %s.\n", filename);
 }
+
 void loadSectionsFromFile(const char *filename) {
-    FILE *file = fopen(filename, "rb");
+    FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        printf("Error opening file for reading!\n");
+        perror("Error opening file for reading!\n");
         return;
     }
-    fread(&sectionCount, sizeof(int), 1, file);
-    sections = realloc(sections, sectionCount * sizeof(struct Section));
-    if (sections == NULL) {
-        printf("Memory allocation failed!\n");
+
+    fscanf(file, "%d", &sectionCount);
+    struct Section *temp = realloc(sections, sectionCount * sizeof(struct Section));
+    if (temp == NULL) {
+        perror("Memory reallocation failed for sections!");
         fclose(file);
-        return;
+        exit(1);
     }
+    sections = temp;
+
     for (int i = 0; i < sectionCount; i++) {
-        fread(&sections[i].section_id, sizeof(int), 1, file);
-        fread(sections[i].section_name, sizeof(char), 50, file);
         sections[i].studentDetails = malloc(sizeof(struct Student));
-        fread(sections[i].studentDetails, sizeof(struct Student), 1, file);
+        if (sections[i].studentDetails == NULL) {
+            perror("Memory allocation failed for studentDetails in sections!");
+            fclose(file);
+            exit(1);
+        }
+        fscanf(file, "%d %s %d %s", &sections[i].section_id,
+               sections[i].section_name,
+               &sections[i].studentDetails->id,
+               sections[i].studentDetails->name);
     }
+
     fclose(file);
     printf("Sections loaded successfully from %s.\n", filename);
 }
-
-
 

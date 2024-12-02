@@ -2,5 +2,5 @@
 
 int main()
 {
-    main1();
+    mainprogram();
 }
